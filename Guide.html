@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MGS Vault - User Guide</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #27ae60;
+            --danger: #e74c3c;
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; line-height: 1.6; color: #333; background-color: var(--light); margin: 0; padding: 0; }
+        .container { max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        header { border-bottom: 2px solid var(--primary); padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; color: var(--dark); font-size: 1.8rem; }
+        h2 { color: var(--primary); margin-top: 30px; border-left: 4px solid var(--primary); padding-left: 15px; }
+        .btn-back { text-decoration: none; background: var(--dark); color: white; padding: 8px 16px; border-radius: 6px; font-size: 0.9rem; transition: 0.3s; }
+        .btn-back:hover { background: var(--primary); }
+        .step-card { background: #f9f9f9; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+        .step-num { font-weight: bold; color: var(--primary); font-size: 1.2rem; margin-right: 10px; }
+        .important { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 3px; font-family: monospace; }
+        footer { text-align: center; margin-top: 40px; color: #7f8c8d; font-size: 0.8rem; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🛡️ MGS User Guide</h1>
+        <a href="index.html" class="btn-back">⬅ Return to Vault</a>
+    </header>
+
+    <p>Welcome to the <b>Master Guardian System</b>. This vault uses AES-256 encryption to keep your passwords private. Your data never leaves this device unless you choose to back it up.</p>
+
+    <h2>1. Setting Your PIN</h2>
+    <div class="step-card">
+        <span class="step-num">01</span> 
+        When you first open the vault, choose a 4-6 digit PIN. 
+        <strong>This PIN is your encryption key.</strong> If you forget it, the data cannot be unlocked without a recovery file.
+    </div>
+
+    <h2>2. Adding Passwords</h2>
+    <div class="step-card">
+        <p>Click the <b>"+ New"</b> button to open the entry form. You can store:</p>
+        <ul>
+            <li><b>Site/Service:</b> (e.g., Gmail, Netflix)</li>
+            <li><b>Username:</b> Your login ID</li>
+            <li><b>Password:</b> Use the 🎲 icon to generate a strong, random password.</li>
+            <li><b>Notes:</b> Add security questions or account details here.</li>
+        </ul>
+    </div>
+
+    <div class="important">
+        <strong>⚠️ Critical Step:</strong> Your Emergency Recovery Envelope is created/updated <b>only when you save a password</b>. Make sure to save at least one entry to stay protected!
+    </div>
+
+    <h2>3. Offline & App Installation</h2>
+    <div class="step-card">
+        <p>This vault is a <b>PWA (Progressive Web App)</b>. You can install it on your device:</p>
+        <ul>
+            <li><b>Desktop:</b> Click the "Install" icon in the browser address bar.</li>
+            <li><b>Mobile:</b> Tap "Add to Home Screen" in your browser menu.</li>
+        </ul>
+        <p>Once installed, the vault works 100% offline without an internet connection.</p>
+    </div>
+
+    <h2>4. Emergency Recovery</h2>
+    <div class="step-card">
+        <p>If you forget your PIN:</p>
+        <ol>
+            <li>Go to the Login Screen.</li>
+            <li>Click <b>"Get Support Recovery File (.vault)"</b>.</li>
+            <li>Send that file to your Administrator (Beast).</li>
+            <li>They will decrypt the file using the Master Key and provide you with your passwords.</li>
+        </ol>
+    </div>
+
+    <footer>
+        System Version: v2.1 (Multi-User Edition) | Last Updated: March 2026<br>
+        Developed for the  (MGS)
+    </footer>
+</div>
+
+</body>
+</html>
