@@ -1,6 +1,6 @@
 const CACHE_NAME = 'vault-v2.1';
 const ASSETS = [
-  './vault.html',
+  './index.html',
   './manifest.json'
 ];
 
