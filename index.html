@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
     <title>MGS Family Vault</title>
-	<link rel="manifest" href="manifest.json">
-	<meta name="theme-color" content="#3498db">
-	<script>
- 	 if ('serviceWorker' in navigator) {
- 	   navigator.serviceWorker.register('./sw.js');
-  	}
-	</script>
-   	 <link rel="icon" href="./icon-512.png" type="image/png">
-	<link rel="apple-touch-icon" href="./icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3498db">
+    <link rel="icon" href="./icon-512.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icon-192.png">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+
     <style>
         :root { 
             --primary: #2c3e50; 
@@ -23,25 +24,32 @@
             --warning: #e67e22;
             --danger: #e74c3c;
         }
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: var(--bg); 
-            color: var(--primary); 
-            margin: 0; padding: 10px;
-            display: flex; justify-content: center; 
+        
+        /* Gatekeeper styles */
+        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); }
+        #main-content { display: none; padding: 10px; }
+        body.authorized #main-content { display: flex; justify-content: center; }
+        
+        #gatekeeper-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50; color: white; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999;
         }
+
         .container { 
             background: white; padding: 1.5rem; 
             border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
             width: 100%; max-width: 500px; min-height: 80vh;
+            margin-top: 20px;
         }
+
         h2 { text-align: center; color: var(--primary); margin-top: 0; }
         input, textarea, button { 
             width: 100%; padding: 12px; margin: 8px 0; 
             border-radius: 8px; border: 1px solid #ddd; 
             box-sizing: border-box; font-size: 1rem; 
         }
-        textarea { resize: vertical; min-height: 60px; font-family: inherit; }
         button { 
             background: var(--accent); color: white; border: none; 
             cursor: pointer; font-weight: 600; transition: 0.2s; 
@@ -51,258 +59,219 @@
         .entry-card { 
             background: #fff; border: 1px solid #edf2f7; 
             padding: 15px; margin-bottom: 12px; border-radius: 12px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .entry-title { font-weight: bold; font-size: 1.1rem; color: var(--accent); }
-        .entry-detail { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
-        .entry-notes { font-size: 0.85rem; font-style: italic; color: #888; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;}
-        .copy-group { display: flex; gap: 8px; margin-top: 10px; }
-        .copy-btn { padding: 6px 12px; font-size: 0.8rem; flex: 1; }
         .hidden { display: none; }
-        .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #95a5a6; margin: 25px 0 10px; font-weight: bold; }
-
-	#search-bar {
-	    border: 2px solid var(--accent);
- 	   background: #fff;
-	    margin-bottom: 20px;
-	    padding-left: 40px; /* Space for the emoji/icon */
-	}
+        .section-title { font-size: 0.8rem; text-transform: uppercase; color: #95a5a6; margin: 25px 0 10px; font-weight: bold; }
+        #search-bar { border: 2px solid var(--accent); margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="login-screen">
-        <h2>🔐 MGS Family Vault</h2>
-        <p style="text-align: center; color: #7f8c8d;">Enter your Secure PIN</p>
-      <input type="password" id="pin-input" placeholder="4-6 Digit PIN" inputmode="numeric" pattern="[0-9]*">
-        <button onclick="handleLogin()">Unlock My Vault</button>
-	<div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
-        <p style="font-size: 0.85rem; color: #95a5a6;">Forgot your PIN?</p>
-        <a href="#" onclick="emergencyExport()" style="color: var(--danger); font-size: 0.9rem; text-decoration: none; font-weight: bold;">🆘 Click here to generate a Support Recovery File</a>
+<div id="gatekeeper-screen">
+    <img src="./icon-192.png" width="80" style="margin-bottom:20px; border-radius: 15px;">
+    <h2 style="color: white;">MGS SYSTEM ACCESS</h2>
+    <div style="width: 80%; max-width: 300px;">
+        <input type="password" id="gatekeeper-input" placeholder="Enter System Code" style="text-align:center;">
+        <button onclick="checkAccess()" style="background:#3498db;">Initialize Boot</button>
     </div>
-<center><a href="./Guide.html" style="color: #3498db; font-size: 0.8rem;">View User Guide</a></center>
-    </div>
+</div>
 
-    <div id="vault-screen" class="hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin:0;">Your Vault</h2>
-            <button onclick="toggleAddForm()" style="width: auto; padding: 5px 15px;" id="toggle-btn">+ New</button>
+<div id="main-content">
+    <div class="container">
+        <div id="login-screen">
+            <h2>🔐 MGS Family Vault</h2>
+            <p style="text-align: center; color: #7f8c8d;">Enter your Secure PIN</p>
+            <input type="password" id="pin-input" placeholder="4-6 Digit PIN" inputmode="numeric">
+            <button onclick="handleLogin()">Unlock My Vault</button>
+            <div style="margin-top: 25px; text-align: center; border-top: 1px solid #eee; padding-top: 15px;">
+                <a href="#" onclick="emergencyExport()" style="color: var(--danger); font-size: 0.9rem; text-decoration: none; font-weight: bold;">🆘 Emergency Support Recovery</a>
+                <br><br>
+                <a href="guide.html" style="color: #3498db; font-size: 0.8rem;">View User Guide</a>
+            </div>
         </div>
-	
-        <div id="add-form" class="hidden" style="background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px dashed #ccc; margin-top:15px;">
-            <input type="text" id="site-name" placeholder="Site Name (e.g. Gmail)">
-            <input type="text" id="site-user" placeholder="Username/Email">
-	<div style="display: flex; gap: 8px; align-items: center;">	
-            	<input type="text" id="site-pass" placeholder="Password">
-	<button onclick="generatePass()" style="width: auto; margin:0; background: var(--primary); padding: 12px;">🎲</button>
-	</div>
-            <textarea id="site-notes" placeholder="Notes (recovery hints...)"></textarea>
-            <button onclick="saveEntry()" style="background: var(--success);">Save to Vault</button>
+
+        <div id="vault-screen" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin:0;">Your Vault</h2>
+                <button onclick="toggleAddForm()" style="width: auto; padding: 5px 15px;" id="toggle-btn">+ New</button>
+            </div>
+            
+            <div id="add-form" class="hidden" style="background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px dashed #ccc; margin-top:15px;">
+                <input type="text" id="site-name" placeholder="Site Name">
+                <input type="text" id="site-user" placeholder="Username/Email">
+                <div style="display: flex; gap: 8px;">    
+                    <input type="text" id="site-pass" placeholder="Password">
+                    <button onclick="generatePass()" style="width: auto; background: var(--primary);">🎲</button>
+                </div>
+                <textarea id="site-notes" placeholder="Notes..."></textarea>
+                <button onclick="saveEntry()" style="background: var(--success);">Save to Vault</button>
+            </div>
+
+            <input type="text" id="search-bar" placeholder="🔍 Search..." onkeyup="filterEntries()">
+            
+            <div id="welcome-guide" class="hidden" style="background: #e3f2fd; padding: 20px; border-radius: 12px; text-align: center;">
+                <h3>👋 Welcome!</h3>
+                <p>Save your first password to initialize recovery.</p>
+                <button onclick="toggleAddForm()" style="background: #1976d2;">Add First Password</button>
+            </div>
+
+            <div id="entries-list"></div>
+
+            <div class="section-title">Maintenance</div>
+            <button class="secondary-btn" onclick="exportBackup()">📥 Save Local Backup (.json)</button>
+            <label class="secondary-btn" style="display: block; text-align: center; cursor: pointer; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+                📤 Restore from Backup
+                <input type="file" id="import-file" class="hidden" onchange="importBackup(event)">
+            </label>
+            <button class="secondary-btn" style="background: var(--danger); color: white;" onclick="exportRecovery()">🆘 Get Recovery File (.vault)</button>
+            <button class="secondary-btn" onclick="location.reload()">🔒 Lock Vault</button>
+            
+            <div style="text-align: center; font-size: 0.7rem; color: #bdc3c7; margin-top: 20px;">
+                v2.1 | MGS Secure Environment
+            </div>
         </div>
-	<input type="text" id="search-bar" placeholder="🔍 Search by Site Name..." onkeyup="filterEntries()">
-        <div class="section-title">Saved Accounts</div>
-           <div id="welcome-guide" class="hidden" style="background: #e3f2fd; border: 1px solid #90caf9; padding: 20px; border-radius: 12px; margin: 20px 0; text-align: center;">
-    		<h3 style="margin-top: 0; color: #1976d2;">👋 Welcome to Your Vault!</h3>
-    		<p style="font-size: 0.9rem; color: #444;">Your vault is currently empty. To get started and <b>activate your emergency recovery</b>, please add your first password.</p>
-    		<button onclick="toggleAddForm()" style="background: #1976d2; width: auto; padding: 8px 20px;">Add My First Password</button>
-	</div>
-
-	<div id="entries-list"></div>
-     
-        <div class="section-title">Backup & Maintenance</div>
-        <button class="secondary-btn" onclick="exportBackup()">📥 Save Local Backup (.json)</button>
-        
-        <label class="secondary-btn" style="display: block; text-align: center; cursor: pointer;">
-            📤 Restore from Backup
-            <input type="file" id="import-file" class="hidden" onchange="importBackup(event)">
-        </label>
-        
-        <button class="secondary-btn" style="background: var(--danger); color: white;" onclick="exportRecovery()">🆘 Get Support Recovery File (.vault)</button>
-
-        <div class="section-title">Session</div>
-        <button class="secondary-btn" onclick="location.reload()">🔒 Lock Vault</button>
     </div>
 </div>
 
 <script>
-    // REPLACE THE OBJECT BELOW WITH YOUR ACTUAL PUBLIC KEY
+    // --- GATEKEEPER LOGIC ---
+async function checkAccess() {
+    // This is the EXACT hash your browser generated for "Beast2026" + Salt
+    const SECRET_HASH = "ae3683e1b8152065cca4b0268a3af5b011a995477dc19c3ddbf0cb7767f14808";
+    
+    // The Salt used to generate the hash above
+    const SALT = "MGS_Guardian_Shield_2026";
+
+    const inputField = document.getElementById('gatekeeper-input');
+    const input = inputField.value.trim(); 
+    
+    if (!input) return;
+
+    // Combine input with our secret salt
+    const saltedInput = input + SALT;
+
+    const msgUint8 = new TextEncoder().encode(saltedInput);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (hashHex === SECRET_HASH) {
+        sessionStorage.setItem("mgs_unlocked", "true");
+        unlockUI();
+        console.log("Access Granted.");
+    } else {
+        alert("Invalid Access Code. System remains locked.");
+        inputField.value = ""; // Clear the field on failure
+    }
+}
+
+    function unlockUI() {
+        document.getElementById('gatekeeper-screen').style.display = 'none';
+        document.body.classList.add('authorized');
+        document.getElementById('main-content').style.display = 'block';
+    }
+
+    window.onload = () => {
+        if (sessionStorage.getItem("mgs_unlocked") === "true") {
+            unlockUI();
+        }
+    };
+
+    // --- VAULT CORE LOGIC ---
     const ADMIN_PUBLIC_KEY_JWK = {"alg":"RSA-OAEP-256","e":"AQAB","ext":true,"key_ops":["encrypt"],"kty":"RSA","n":"yQIEFGQxs9tWAYTORHYAaW5QH7cCmuxptLaOKv2ZDlhuUTdppR0DZ0tZwrD-VvnHgEDLTy7W6uaCJq-B-qmrDNIxFXl8rmUr0QYtexUVwVk_NWfjv1aG7oBeFrhz73kD4Jotljv7iX8ELRFSIfSFQV9RGeyI2I6tCM-xTirxULkHwzLcO8aKC8bC7BwD9A9Z05Koh0ztpg7CDWxDGdnSTu_WhiYp5ZoloS1ttd3gOwwrnJIU_RAgyqwkzP-aLhPzgqCeOWrEhygPfk-hWd9yBsjRELGhLyQ2WYS0Hy-f3917WQhq8I95q3DUxkkWlek_vOfLBC1_3xsF3TZHO4P5ww"};
+    let db, encryptionKey;
 
-    let db;
-    let encryptionKey;
-
-    // Database Initialization (Version 3)
     const request = indexedDB.open("FamilyVaultDB", 3);
     request.onupgradeneeded = (e) => {
-        const db = e.target.result;
-        if (!db.objectStoreNames.contains("vault")) {
-            db.createObjectStore("vault", { keyPath: "id", autoIncrement: true });
-        }
-        if (!db.objectStoreNames.contains("settings")) {
-            db.createObjectStore("settings", { keyPath: "key" });
-        }
+        db = e.target.result;
+        if (!db.objectStoreNames.contains("vault")) db.createObjectStore("vault", { keyPath: "id", autoIncrement: true });
+        if (!db.objectStoreNames.contains("settings")) db.createObjectStore("settings", { keyPath: "key" });
     };
     request.onsuccess = (e) => { db = e.target.result; };
 
-    // Key Derivation (Extractable = true for recovery)
     async function deriveKey(pin) {
         const encoder = new TextEncoder();
         const baseKey = await crypto.subtle.importKey("raw", encoder.encode(pin), "PBKDF2", false, ["deriveKey"]);
         return crypto.subtle.deriveKey(
             { name: "PBKDF2", salt: encoder.encode("family-constant-salt"), iterations: 100000, hash: "SHA-256" },
-            baseKey, 
-            { name: "AES-GCM", length: 256 }, 
-            true, // Extractable must be true for recovery envelope
-            ["encrypt", "decrypt"]
+            baseKey, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]
         );
     }
 
     async function handleLogin() {
         const pin = document.getElementById('pin-input').value;
-        if(pin.length < 4) return alert("Please enter at least 4 digits.");
+        if(pin.length < 4) return alert("PIN too short.");
         try {
             encryptionKey = await deriveKey(pin);
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('vault-screen').classList.remove('hidden');
             renderEntries();
-	// Inside handleLogin, after renderEntries();
-	setTimeout(() => document.getElementById('search-bar').focus(), 100);
         } catch(e) { alert("Login failed."); }
     }
-
-    function toggleAddForm() {
-        const form = document.getElementById('add-form');
-        const btn = document.getElementById('toggle-btn');
-        form.classList.toggle('hidden');
-        btn.innerText = form.classList.contains('hidden') ? "+ New" : "Close";
-    }
-
-function generatePass() {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-    const length = 16; // Solid length for security
-    let retVal = "";
-    
-    // We use Web Crypto API for true randomness
-    const randomValues = new Uint32Array(length);
-    window.crypto.getRandomValues(randomValues);
-
-    for (let i = 0; i < length; i++) {
-        retVal += charset.charAt(randomValues[i] % charset.length);
-    }
-    
-    document.getElementById('site-pass').value = retVal;
-}
 
     async function saveEntry() {
         const site = document.getElementById('site-name').value.trim();
         const user = document.getElementById('site-user').value.trim();
         const pass = document.getElementById('site-pass').value.trim();
         const notes = document.getElementById('site-notes').value.trim();
+        if(!site || !pass) return alert("Required fields missing.");
 
-        if(!site || !pass) return alert("Site Name and Password are required!");
-
-        const data = JSON.stringify({ site, user, pass, notes });
-        const encoder = new TextEncoder();
         const iv = crypto.getRandomValues(new Uint8Array(12));
-        const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, encryptionKey, encoder.encode(data));
+        const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, encryptionKey, new TextEncoder().encode(JSON.stringify({ site, user, pass, notes })));
 
         const tx = db.transaction("vault", "readwrite");
         tx.objectStore("vault").add({ iv, content: encrypted });
-        tx.oncomplete = () => { 
-            renderEntries(); 
-            clearInputs(); 
-            toggleAddForm();
-            updateRecoveryEnvelope();
+        tx.oncomplete = () => { renderEntries(); clearInputs(); toggleAddForm(); updateRecoveryEnvelope(); };
+    }
+
+    async function renderEntries() {
+        const list = document.getElementById('entries-list');
+        const welcome = document.getElementById('welcome-guide');
+        list.innerHTML = "";
+        let count = 0;
+
+        const tx = db.transaction("vault", "readonly");
+        tx.objectStore("vault").openCursor().onsuccess = async e => {
+            const cursor = e.target.result;
+            if (cursor) {
+                count++;
+                try {
+                    const dec = await crypto.subtle.decrypt({ name: "AES-GCM", iv: cursor.value.iv }, encryptionKey, cursor.value.content);
+                    const item = JSON.parse(new TextDecoder().decode(dec));
+                    const div = document.createElement('div');
+                    div.className = 'entry-card';
+                    div.innerHTML = `<div class="entry-title">${item.site}</div><div style="font-size:0.8rem; color:grey;">${item.user}</div>
+                        <div class="copy-group"><button class="copy-btn" onclick="copyText('${item.pass}')">Copy</button>
+                        <button class="copy-btn" style="background:#95a5a6;" onclick="deleteEntry(${cursor.value.id})">Del</button></div>`;
+                    list.appendChild(div);
+                } catch(err) { console.error("Decryption failed."); }
+                cursor.continue();
+            } else {
+                welcome.style.display = count === 0 ? "block" : "none";
+            }
         };
     }
 
-   async function renderEntries() {
-    const list = document.getElementById('entries-list');
-    const welcome = document.getElementById('welcome-guide');
-    list.innerHTML = "";
-    
-    let entryCount = 0; // Track if we have any items
-    
-    const tx = db.transaction("vault", "readonly");
-    tx.objectStore("vault").openCursor().onsuccess = async e => {
-        const cursor = e.target.result;
-        if (cursor) {
-            entryCount++;
-            try {
-                const decrypted = await crypto.subtle.decrypt(
-                    { name: "AES-GCM", iv: cursor.value.iv }, 
-                    encryptionKey, 
-                    cursor.value.content
-                );
-                const item = JSON.parse(new TextDecoder().decode(decrypted));
-                
-                const div = document.createElement('div');
-                div.className = 'entry-card';
-                div.innerHTML = `
-                    <div class="entry-header"><span class="entry-title">${item.site}</span></div>
-                    <div class="entry-detail">👤 ${item.user || '—'}</div>
-                    ${item.notes ? `<div class="entry-notes">📝 ${item.notes}</div>` : ''}
-                    <div class="copy-group">
-                        <button class="copy-btn" onclick="copyText('${item.pass}')">Copy Pass</button>
-                        <button class="copy-btn" style="background:#95a5a6;" onclick="deleteEntry(${cursor.value.id})">Delete</button>
-                    </div>`;
-                list.appendChild(div);
-            } catch(err) { console.error("Decryption failed."); }
-            cursor.continue();
-        } else {
-            // After the loop, check if we found anything
-            if (entryCount === 0) {
-                welcome.classList.remove('hidden');
-            } else {
-                welcome.classList.add('hidden');
-            }
-            filterEntries(); 
-        }
-    };
-}
+    async function updateRecoveryEnvelope() {
+        if (!encryptionKey || !ADMIN_PUBLIC_KEY_JWK.kty) return;
+        try {
+            const rawKey = await crypto.subtle.exportKey("raw", encryptionKey);
+            const hash = await crypto.subtle.digest("SHA-256", rawKey);
+            const keyID = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 8);
+            const adminPubKey = await crypto.subtle.importKey("jwk", ADMIN_PUBLIC_KEY_JWK, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
+            const wrapped = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, adminPubKey, rawKey);
+            const tx = db.transaction("settings", "readwrite");
+            tx.objectStore("settings").put({ key: `recovery_envelope_${keyID}`, value: Array.from(new Uint8Array(wrapped)) });
+        } catch (e) { console.error("Recovery Setup Failed", e); }
+    }
 
-   // async function updateRecoveryEnvelope() {
-   //     if (!encryptionKey || !ADMIN_PUBLIC_KEY_JWK) return;
- //       try {
- //           const rawKey = await crypto.subtle.exportKey("raw", encryptionKey);
- //           const adminPubKey = await crypto.subtle.importKey("jwk", ADMIN_PUBLIC_KEY_JWK, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
- //           const wrappedKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, adminPubKey, rawKey);
- //           const tx = db.transaction("settings", "readwrite");
- //           tx.objectStore("settings").put({ key: "recovery_envelope", value: Array.from(new Uint8Array(wrappedKey)) });
- //           console.log("Recovery envelope updated.");
- //       } catch (e) { console.error("Recovery Setup Failed:", e); }
- //   }
-
-
-async function updateRecoveryEnvelope() {
-    if (!encryptionKey || !ADMIN_PUBLIC_KEY_JWK) return;
-    try {
+    async function exportRecovery() {
+        if (!encryptionKey) return;
         const rawKey = await crypto.subtle.exportKey("raw", encryptionKey);
-        
-        // Create a unique "ID" for this specific PIN/Key so we don't overwrite others
-        const hashBuffer = await crypto.subtle.digest("SHA-256", rawKey);
-        const keyID = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 8);
-
-        const adminPubKey = await crypto.subtle.importKey(
-            "jwk", ADMIN_PUBLIC_KEY_JWK, 
-            { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]
-        );
-
-        const wrappedKey = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, adminPubKey, rawKey);
-
-        const tx = db.transaction("settings", "readwrite");
-        // We save with a unique key: "recovery_envelope_abcd123"
-        tx.objectStore("settings").put({ 
-            key: `recovery_envelope_${keyID}`, 
-            value: Array.from(new Uint8Array(wrappedKey)) 
-        });
-    } catch (e) { console.error("Recovery Setup Failed:", e); }
-}
-
-
-    async function exportBackup() {
-        const tx = db.transaction("vault", "readonly");
+        const hash = await crypto.subtle.digest("SHA-256", rawKey);
+        const keyID = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 8);
+        const tx = db.transaction(["vault", "settings"], "readonly");
         const entries = [];
         tx.objectStore("vault").openCursor().onsuccess = (e) => {
             const cursor = e.target.result;
@@ -310,170 +279,94 @@ async function updateRecoveryEnvelope() {
                 entries.push({ iv: Array.from(cursor.value.iv), content: Array.from(new Uint8Array(cursor.value.content)) });
                 cursor.continue();
             } else {
-                const blob = new Blob([JSON.stringify(entries)], {type: "application/json"});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `Vault_Backup_${new Date().toISOString().slice(0,10)}.json`;
-                a.click();
+                tx.objectStore("settings").get(`recovery_envelope_${keyID}`).onsuccess = (ev) => {
+                    if (!ev.target.result) return alert("Save a password first!");
+                    const pack = { type: "MASTER_RECOVERY_FINAL", envelope: ev.target.result.value, data: entries };
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([JSON.stringify(pack)], {type: "application/octet-stream"}));
+                    a.download = `RECOVERY_${keyID}.vault`;
+                    a.click();
+                };
             }
         };
     }
 
-    async function importBackup(event) {
-        const file = event.target.files[0];
+    async function emergencyExport() {
+        const tx = db.transaction(["vault", "settings"], "readonly");
+        const entries = [], envelopes = [];
+        tx.objectStore("vault").openCursor().onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+                entries.push({ iv: Array.from(cursor.value.iv), content: Array.from(new Uint8Array(cursor.value.content)) });
+                cursor.continue();
+            } else {
+                tx.objectStore("settings").openCursor().onsuccess = (ev) => {
+                    const c = ev.target.result;
+                    if (c) {
+                        if (c.value.key.startsWith("recovery_envelope")) envelopes.push(c.value.value);
+                        c.continue();
+                    } else {
+                        const pack = { type: "MASTER_RECOVERY_MULTI", envelopes, data: entries };
+                        const a = document.createElement('a');
+                        a.href = URL.createObjectURL(new Blob([JSON.stringify(pack)], {type: "application/octet-stream"}));
+                        a.download = `EMERGENCY_RECOVERY.vault`;
+                        a.click();
+                        alert("File created! Send this to your admin.");
+                    }
+                };
+            }
+        };
+    }
+
+    // Helper functions
+    function toggleAddForm() { 
+        const f = document.getElementById('add-form');
+        f.classList.toggle('hidden');
+        document.getElementById('toggle-btn').innerText = f.classList.contains('hidden') ? "+ New" : "Close";
+    }
+    function generatePass() {
+        const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+        const vals = new Uint32Array(16);
+        crypto.getRandomValues(vals);
+        document.getElementById('site-pass').value = Array.from(vals).map(v => chars[v % chars.length]).join('');
+    }
+    function copyText(t) { navigator.clipboard.writeText(t); alert("Copied!"); }
+    async function deleteEntry(id) { if(confirm("Delete?")) { const tx = db.transaction("vault", "readwrite"); tx.objectStore("vault").delete(id); tx.oncomplete = () => renderEntries(); } }
+    function clearInputs() { ['site-name', 'site-user', 'site-pass', 'site-notes'].forEach(id => document.getElementById(id).value = ""); }
+    function filterEntries() {
+        const q = document.getElementById('search-bar').value.toLowerCase();
+        Array.from(document.getElementsByClassName('entry-card')).forEach(c => {
+            c.style.display = c.innerText.toLowerCase().includes(q) ? "block" : "none";
+        });
+    }
+    async function exportBackup() {
+        const tx = db.transaction("vault", "readonly");
+        const entries = [];
+        tx.objectStore("vault").openCursor().onsuccess = (e) => {
+            const c = e.target.result;
+            if (c) { entries.push({ iv: Array.from(c.value.iv), content: Array.from(new Uint8Array(c.value.content)) }); c.continue(); }
+            else { 
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([JSON.stringify(entries)], {type: "application/json"}));
+                a.download = `Vault_Backup.json`;
+                a.click();
+            }
+        };
+    }
+    async function importBackup(ev) {
+        const file = ev.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = async (e) => {
-            const importedData = JSON.parse(e.target.result);
+            const data = JSON.parse(e.target.result);
             const tx = db.transaction("vault", "readwrite");
             const store = tx.objectStore("vault");
-            store.clear(); 
-            importedData.forEach(item => {
-                store.add({ iv: new Uint8Array(item.iv), content: new Uint8Array(item.content).buffer });
-            });
-            tx.oncomplete = () => { alert("Backup Restored! Re-enter PIN."); location.reload(); };
+            store.clear();
+            data.forEach(item => store.add({ iv: new Uint8Array(item.iv), content: new Uint8Array(item.content).buffer }));
+            tx.oncomplete = () => { alert("Restored!"); location.reload(); };
         };
         reader.readAsText(file);
     }
-
-  //  async function exportRecovery() {
-  //      const tx = db.transaction("vault", "readonly");
-  //      const entries = [];
- //       tx.objectStore("vault").openCursor().onsuccess = (e) => {
-//            const cursor = e.target.result;
-//            if (cursor) {
-//                entries.push({ iv: Array.from(cursor.value.iv), content: Array.from(new Uint8Array(cursor.value.content)) });
-//                cursor.continue();
- //           } else {
-//                const settingsTx = db.transaction("settings", "readonly");
- //               const getEnv = settingsTx.objectStore("settings").get("recovery_envelope");
- //               getEnv.onsuccess = () => {
-//                    if (!getEnv.result) return alert("Recovery not initialized. Save a password first!");
-//                    const recoveryPackage = { type: "MASTER_RECOVERY_FINAL", envelope: getEnv.result.value, data: entries };
- //                   const blob = new Blob([JSON.stringify(recoveryPackage)], {type: "application/octet-stream"});
- //                   const a = document.createElement('a');
-  //                  a.href = URL.createObjectURL(blob);
-  //                  a.download = `EMERGENCY_RECOVERY_${new Date().toISOString().slice(0,10)}.vault`;
-  //                  a.click();
- //               };
- //           }
- //       };
-//    }
-
-async function exportRecovery() {
-    if (!encryptionKey) return alert("Please log in first!");
-
-    // 1. Calculate the current user's Key ID (Fingerprint)
-    const rawKey = await crypto.subtle.exportKey("raw", encryptionKey);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", rawKey);
-    const keyID = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 8);
-    const targetKey = `recovery_envelope_${keyID}`;
-
-    const tx = db.transaction(["vault", "settings"], "readonly");
-    const entries = [];
-    
-    // 2. Gather all the password entries
-    tx.objectStore("vault").openCursor().onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-            entries.push({
-                iv: Array.from(cursor.value.iv), 
-                content: Array.from(new Uint8Array(cursor.value.content))
-            });
-            cursor.continue();
-        } else {
-            // 3. Look for the specific envelope for THIS user
-            const getEnv = tx.objectStore("settings").get(targetKey);
-
-            getEnv.onsuccess = () => {
-                if (!getEnv.result) {
-                    return alert("Recovery envelope not found for this PIN. Please save a new password to initialize it!");
-                }
-
-                const recoveryPackage = {
-                    type: "MASTER_RECOVERY_FINAL", // Keeping format compatible with Admin Tool
-                    timestamp: new Date().toISOString(),
-                    envelope: getEnv.result.value, 
-                    data: entries 
-                };
-
-                const blob = new Blob([JSON.stringify(recoveryPackage)], {type: "application/octet-stream"});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `SUPPORT_FILE_${keyID}_${new Date().getTime()}.vault`;
-                a.click();
-                
-                alert("Individual Support File created!");
-            };
-        }
-    };
-}
-
-
-    function copyText(text) { navigator.clipboard.writeText(text); alert("Copied!"); }
-    async function deleteEntry(id) {
-        if(confirm("Delete this entry?")) {
-            const tx = db.transaction("vault", "readwrite");
-            tx.objectStore("vault").delete(id);
-            tx.oncomplete = () => renderEntries();
-        }
-    }
-    function clearInputs() { ['site-name', 'site-user', 'site-pass', 'site-notes'].forEach(id => document.getElementById(id).value = ""); }
-
-function filterEntries() {
-    const query = document.getElementById('search-bar').value.toLowerCase();
-    const cards = document.getElementsByClassName('entry-card');
-
-    Array.from(cards).forEach(card => {
-        const title = card.querySelector('.entry-title').innerText.toLowerCase();
-        if (title.includes(query)) {
-            card.style.display = "block";
-        } else {
-            card.style.display = "none";
-        }
-    });
-}
-
-
-async function emergencyExport() {
-    const tx = db.transaction(["vault", "settings"], "readonly");
-    const entries = [];
-    const envelopes = [];
-    
-    tx.objectStore("vault").openCursor().onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-            entries.push({ iv: Array.from(cursor.value.iv), content: Array.from(new Uint8Array(cursor.value.content)) });
-            cursor.continue();
-        } else {
-            // This loop now catches ALL envelopes, including the new 'recovery_envelope_abcd123' format
-            tx.objectStore("settings").openCursor().onsuccess = (ev) => {
-                const envCursor = ev.target.result;
-                if (envCursor) {
-                    if (envCursor.value.key.startsWith("recovery_envelope")) {
-                        envelopes.push(envCursor.value.value);
-                    }
-                    envCursor.continue();
-                } else {
-                    const recoveryPackage = {
-                        type: "MASTER_RECOVERY_MULTI",
-                        timestamp: new Date().toISOString(),
-                        envelopes: envelopes,
-                        data: entries
-                    };
-                    const blob = new Blob([JSON.stringify(recoveryPackage)], {type: "application/octet-stream"});
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `MULTI_USER_RECOVERY_${new Date().getTime()}.vault`;
-                    a.click();
-                    alert("Emergency File Created! Please send this to your Administrator.");
-                }
-            };
-        }
-    };
-}
-
 </script>
 </body>
 </html>
