@@ -15,56 +15,143 @@
         }
     </script>
 
-    <style>
-        :root { 
-            --primary: #2c3e50; 
-            --accent: #3498db; 
-            --bg: #f8f9fa; 
-            --success: #27ae60;
-            --warning: #e67e22;
-            --danger: #e74c3c;
-        }
-        
-        /* Gatekeeper styles */
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); }
-        #main-content { display: none; padding: 10px; }
-        body.authorized #main-content { display: flex; justify-content: center; }
-        
-        #gatekeeper-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c3e50; color: white; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
-            z-index: 9999;
-        }
+  <style>
+    :root { 
+        --primary: #2c3e50; 
+        --accent: #3498db; 
+        --bg: #f0f2f5; 
+        --success: #27ae60;
+        --warning: #e67e22;
+        --danger: #e74c3c;
+    }
+    
+    /* 1. Reset and Centering Logic */
+    body { 
+        margin: 0; 
+        padding: 0; 
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+        background: var(--bg);
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+    }
 
+    /* 2. Main Content Container */
+    #main-content { 
+        display: none; 
+        width: 100%;
+        max-width: 500px; 
+        padding: 15px;
+        box-sizing: border-box;
+    }
+
+    body.authorized #main-content { 
+        display: block; 
+    }
+    
+    /* 3. Gatekeeper (Full Screen Overlay) */
+    #gatekeeper-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: var(--primary); color: white; display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    /* 4. The Vault Card */
+    .container { 
+        background: white; 
+        padding: 2rem; 
+        border-radius: 20px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 20px;
+        min-height: auto;
+    }
+
+    h2 { text-align: center; color: var(--primary); margin-top: 0; font-weight: 700; }
+
+    /* 5. Responsive Form Elements */
+    input, textarea, button { 
+        width: 100%; 
+        padding: 14px; 
+        margin: 10px 0; 
+        border-radius: 12px; 
+        border: 1px solid #dcdde1; 
+        box-sizing: border-box; 
+        font-size: 16px; 
+    }
+
+    button { 
+        background: var(--accent); 
+        color: white; 
+        border: none; 
+        cursor: pointer; 
+        font-weight: 600; 
+        transition: transform 0.1s, background 0.2s; 
+    }
+
+    button:hover { background: #2980b9; }
+    button:active { transform: scale(0.97); }
+
+    .secondary-btn { background: #ecf0f1; color: var(--primary); margin-top: 10px; }
+
+    /* 6. Vault Entry Cards */
+    .entry-card { 
+        background: #fff; 
+        border: 1px solid #edf2f7; 
+        padding: 16px; 
+        margin-bottom: 12px; 
+        border-radius: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .entry-title { font-weight: bold; font-size: 1.1rem; color: var(--accent); }
+    
+    .copy-group {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .copy-btn { 
+        width: auto; 
+        margin: 0; 
+        padding: 8px 15px; 
+        font-size: 0.85rem; 
+        flex-grow: 1;
+    }
+
+    .hidden { display: none !important; }
+
+    .section-title { 
+        font-size: 0.8rem; 
+        text-transform: uppercase; 
+        color: #95a5a6; 
+        margin: 25px 0 10px; 
+        font-weight: bold; 
+        letter-spacing: 1px;
+    }
+
+    #search-bar { 
+        border: 2px solid var(--accent); 
+        margin-bottom: 20px; 
+        background: #fff;
+    }
+
+    /* 7. Mobile Specific Tweaks */
+    @media (max-width: 480px) {
         .container { 
-            background: white; padding: 1.5rem; 
-            border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-            width: 100%; max-width: 500px; min-height: 80vh;
-            margin-top: 20px;
+            padding: 1.2rem; 
+            border-radius: 15px; 
+            margin-top: 10px;
         }
-
-        h2 { text-align: center; color: var(--primary); margin-top: 0; }
-        input, textarea, button { 
-            width: 100%; padding: 12px; margin: 8px 0; 
-            border-radius: 8px; border: 1px solid #ddd; 
-            box-sizing: border-box; font-size: 1rem; 
-        }
-        button { 
-            background: var(--accent); color: white; border: none; 
-            cursor: pointer; font-weight: 600; transition: 0.2s; 
-        }
-        button:active { transform: scale(0.98); }
-        .secondary-btn { background: #ecf0f1; color: var(--primary); margin-top: 10px; }
-        .entry-card { 
-            background: #fff; border: 1px solid #edf2f7; 
-            padding: 15px; margin-bottom: 12px; border-radius: 12px; 
-        }
-        .entry-title { font-weight: bold; font-size: 1.1rem; color: var(--accent); }
-        .hidden { display: none; }
-        .section-title { font-size: 0.8rem; text-transform: uppercase; color: #95a5a6; margin: 25px 0 10px; font-weight: bold; }
-        #search-bar { border: 2px solid var(--accent); margin-bottom: 20px; }
-    </style>
+        h2 { font-size: 1.4rem; }
+    }
+</style>
 </head>
 <body>
 
@@ -98,6 +185,8 @@
             </div>
             
             <div id="add-form" class="hidden" style="background: #fdfdfd; padding: 15px; border-radius: 12px; border: 1px dashed #ccc; margin-top:15px;">
+                <input type="hidden" id="edit-id" value="">
+                
                 <input type="text" id="site-name" placeholder="Site Name">
                 <input type="text" id="site-user" placeholder="Username/Email">
                 <div style="display: flex; gap: 8px;">    
@@ -105,7 +194,7 @@
                     <button onclick="generatePass()" style="width: auto; background: var(--primary);">🎲</button>
                 </div>
                 <textarea id="site-notes" placeholder="Notes..."></textarea>
-                <button onclick="saveEntry()" style="background: var(--success);">Save to Vault</button>
+                <button id="save-btn" onclick="saveEntry()" style="background: var(--success);">Save to Vault</button>
             </div>
 
             <input type="text" id="search-bar" placeholder="🔍 Search..." onkeyup="filterEntries()">
@@ -128,7 +217,7 @@
             <button class="secondary-btn" onclick="location.reload()">🔒 Lock Vault</button>
             
             <div style="text-align: center; font-size: 0.7rem; color: #bdc3c7; margin-top: 20px;">
-                v2.1 | MGS Secure Environment
+                v2.2 | MGS Secure Environment
             </div>
         </div>
     </div>
@@ -137,39 +226,28 @@
 <script>
     // --- GATEKEEPER LOGIC ---
 async function checkAccess() {
-    // This is the EXACT hash your browser generated for "Beast2026" + Salt
     const SECRET_HASH = "ae3683e1b8152065cca4b0268a3af5b011a995477dc19c3ddbf0cb7767f14808";
-    
-    // The Salt used to generate the hash above
     const SALT = "MGS_Guardian_Shield_2026";
-
     const inputField = document.getElementById('gatekeeper-input');
     const input = inputField.value.trim(); 
-    
     if (!input) return;
-
-    // Combine input with our secret salt
     const saltedInput = input + SALT;
-
     const msgUint8 = new TextEncoder().encode(saltedInput);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
     if (hashHex === SECRET_HASH) {
         sessionStorage.setItem("mgs_unlocked", "true");
         unlockUI();
-        console.log("Access Granted.");
     } else {
         alert("Invalid Access Code. System remains locked.");
-        inputField.value = ""; // Clear the field on failure
+        inputField.value = "";
     }
 }
 
     function unlockUI() {
         document.getElementById('gatekeeper-screen').style.display = 'none';
         document.body.classList.add('authorized');
-        document.getElementById('main-content').style.display = 'block';
     }
 
     window.onload = () => {
@@ -211,6 +289,7 @@ async function checkAccess() {
     }
 
     async function saveEntry() {
+        const id = document.getElementById('edit-id').value;
         const site = document.getElementById('site-name').value.trim();
         const user = document.getElementById('site-user').value.trim();
         const pass = document.getElementById('site-pass').value.trim();
@@ -221,8 +300,18 @@ async function checkAccess() {
         const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, encryptionKey, new TextEncoder().encode(JSON.stringify({ site, user, pass, notes })));
 
         const tx = db.transaction("vault", "readwrite");
-        tx.objectStore("vault").add({ iv, content: encrypted });
-        tx.oncomplete = () => { renderEntries(); clearInputs(); toggleAddForm(); updateRecoveryEnvelope(); };
+        const store = tx.objectStore("vault");
+        
+        const entry = { iv, content: encrypted };
+        if (id) entry.id = Number(id); // Keep the same ID to update instead of add
+
+        store.put(entry);
+        tx.oncomplete = () => { 
+            renderEntries(); 
+            clearInputs(); 
+            if (!document.getElementById('add-form').classList.contains('hidden')) toggleAddForm();
+            updateRecoveryEnvelope(); 
+        };
     }
 
     async function renderEntries() {
@@ -241,15 +330,43 @@ async function checkAccess() {
                     const item = JSON.parse(new TextDecoder().decode(dec));
                     const div = document.createElement('div');
                     div.className = 'entry-card';
-                    div.innerHTML = `<div class="entry-title">${item.site}</div><div style="font-size:0.8rem; color:grey;">${item.user}</div>
-                        <div class="copy-group"><button class="copy-btn" onclick="copyText('${item.pass}')">Copy</button>
-                        <button class="copy-btn" style="background:#95a5a6;" onclick="deleteEntry(${cursor.value.id})">Del</button></div>`;
+                    div.innerHTML = `
+                        <div class="entry-title">${item.site}</div>
+                        <div style="font-size:0.8rem; color:grey;">${item.user}</div>
+                        ${item.notes ? `<div style="font-size:0.75rem; color:#7f8c8d; margin-top:5px; font-style:italic;">Note: ${item.notes}</div>` : ''}
+                        <div class="copy-group">
+                            <button class="copy-btn" onclick="copyText('${item.pass}')">Copy</button>
+                            <button class="copy-btn" style="background:var(--primary);" onclick="editEntry(${cursor.value.id})">Edit</button>
+                            <button class="copy-btn" style="background:#95a5a6;" onclick="deleteEntry(${cursor.value.id})">Del</button>
+                        </div>`;
                     list.appendChild(div);
                 } catch(err) { console.error("Decryption failed."); }
                 cursor.continue();
             } else {
                 welcome.style.display = count === 0 ? "block" : "none";
             }
+        };
+    }
+
+    async function editEntry(id) {
+        const tx = db.transaction("vault", "readonly");
+        const request = tx.objectStore("vault").get(id);
+        request.onsuccess = async () => {
+            const data = request.result;
+            const dec = await crypto.subtle.decrypt({ name: "AES-GCM", iv: data.iv }, encryptionKey, data.content);
+            const item = JSON.parse(new TextDecoder().decode(dec));
+            
+            document.getElementById('edit-id').value = id;
+            document.getElementById('site-name').value = item.site;
+            document.getElementById('site-user').value = item.user;
+            document.getElementById('site-pass').value = item.pass;
+            document.getElementById('site-notes').value = item.notes || "";
+            
+            document.getElementById('save-btn').innerText = "Update Entry";
+            document.getElementById('save-btn').style.background = "var(--warning)";
+            
+            if (document.getElementById('add-form').classList.contains('hidden')) toggleAddForm();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         };
     }
 
@@ -318,27 +435,44 @@ async function checkAccess() {
         };
     }
 
-    // Helper functions
     function toggleAddForm() { 
         const f = document.getElementById('add-form');
         f.classList.toggle('hidden');
-        document.getElementById('toggle-btn').innerText = f.classList.contains('hidden') ? "+ New" : "Close";
+        const isHidden = f.classList.contains('hidden');
+        document.getElementById('toggle-btn').innerText = isHidden ? "+ New" : "Close";
+        if (isHidden) clearInputs();
     }
+    
     function generatePass() {
         const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
         const vals = new Uint32Array(16);
         crypto.getRandomValues(vals);
         document.getElementById('site-pass').value = Array.from(vals).map(v => chars[v % chars.length]).join('');
     }
+    
     function copyText(t) { navigator.clipboard.writeText(t); alert("Copied!"); }
-    async function deleteEntry(id) { if(confirm("Delete?")) { const tx = db.transaction("vault", "readwrite"); tx.objectStore("vault").delete(id); tx.oncomplete = () => renderEntries(); } }
-    function clearInputs() { ['site-name', 'site-user', 'site-pass', 'site-notes'].forEach(id => document.getElementById(id).value = ""); }
+    
+    async function deleteEntry(id) { 
+        if(confirm("Delete?")) { 
+            const tx = db.transaction("vault", "readwrite"); 
+            tx.objectStore("vault").delete(id); 
+            tx.oncomplete = () => renderEntries(); 
+        } 
+    }
+    
+    function clearInputs() { 
+        ['edit-id', 'site-name', 'site-user', 'site-pass', 'site-notes'].forEach(id => document.getElementById(id).value = ""); 
+        document.getElementById('save-btn').innerText = "Save to Vault";
+        document.getElementById('save-btn').style.background = "var(--success)";
+    }
+    
     function filterEntries() {
         const q = document.getElementById('search-bar').value.toLowerCase();
         Array.from(document.getElementsByClassName('entry-card')).forEach(c => {
             c.style.display = c.innerText.toLowerCase().includes(q) ? "block" : "none";
         });
     }
+    
     async function exportBackup() {
         const tx = db.transaction("vault", "readonly");
         const entries = [];
@@ -353,6 +487,7 @@ async function checkAccess() {
             }
         };
     }
+    
     async function importBackup(ev) {
         const file = ev.target.files[0];
         if (!file) return;
